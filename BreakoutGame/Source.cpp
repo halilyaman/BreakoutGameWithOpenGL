@@ -1,13 +1,17 @@
 #include <iostream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include "Game.h"
+#include "ResourceManager.h"
 
-namespace game_val
-{
-    float screen_width{ 640.0 };
-    float screen_height{ 480.0 };
-}
+// GLFW function declarations 
+void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
+const unsigned int SCREEN_WIDTH = 800;
+const unsigned int SCREEN_HEIGHT = 600;
+
+Game breakout(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 int main(void)
 {
@@ -17,8 +21,13 @@ int main(void)
     if (!glfwInit())
         return -1;
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, false);
+
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(game_val::screen_width, game_val::screen_height, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Breakout", nullptr, nullptr);
     if (!window)
     {
         glfwTerminate();
@@ -36,23 +45,71 @@ int main(void)
     }
     std::cout << glGetString(GL_VERSION) << std::endl;
 
-    // set viewport
-    glViewport(0, 0, game_val::screen_width, game_val::screen_height);
+    glfwSetKeyCallback(window, KeyCallback);
+    glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
+
+    // OpenGL configuration
+    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // initialize game
+    breakout.Init();
+
+    // delta time variables
+    float delta_time = 0.0f;
+    float last_frame = 0.0f;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        // calculate delta time
+        float current_frame = glfwGetTime();
+        delta_time = current_frame - last_frame;
+        last_frame = current_frame;
+        glfwPollEvents();
+
+        // manage user input
+        breakout.ProcessInput(delta_time);
+
+        // update game state
+        breakout.Update(delta_time);
+
         /* Render here */
-        glClearColor(1.000f, 0.894f, 0.882f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        breakout.Render();
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
-
-        /* Poll for and process events */
-        glfwPollEvents();
     }
+
+    ResourceManager::Clear();
 
     glfwTerminate();
     return 0;
+}
+
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(window, true);
+    } 
+    if (key >= 0 && key < 1024)
+    {
+        if (action == GLFW_PRESS)
+        {
+            breakout.keys_[key] = true;
+        }
+        else if (action == GLFW_RELEASE)
+        {
+            breakout.keys_[key] = false;
+        }
+    }
+}
+
+void FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
 }
