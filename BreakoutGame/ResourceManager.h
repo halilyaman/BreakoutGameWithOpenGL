@@ -17,8 +17,8 @@ class ResourceManager
 {
 public:
     // resource storage
-    static std::map<std::string, Shader> shaders;
-    static std::map<std::string, Texture2D> textures;
+    static std::map<std::string, Shader> shaders_;
+    static std::map<std::string, Texture2D> textures_;
     // loads (and generates) a shader program from file loading vertex, fragment (and geometry) shader's source code. If gShaderFile is not nullptr, it also loads a geometry shader
     static Shader LoadShader(const char* v_shader_file, const char* f_shader_file, const char* g_shader_file, std::string name);
     // retrieves a stored sader

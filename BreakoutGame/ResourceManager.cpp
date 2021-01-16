@@ -7,40 +7,40 @@
 #include <stb/stb_image.h>
 
 // Instantiate static variables
-std::map<std::string, Texture2D> ResourceManager::textures;
-std::map<std::string, Shader> ResourceManager::shaders;
+std::map<std::string, Texture2D> ResourceManager::textures_;
+std::map<std::string, Shader> ResourceManager::shaders_;
 
 
 Shader ResourceManager::LoadShader(const char* v_shader_file, const char* f_shader_file, const char* g_shader_file, std::string name)
 {
-    shaders[name] = LoadShaderFromFile(v_shader_file, f_shader_file, g_shader_file);
-    return shaders[name];
+    shaders_[name] = LoadShaderFromFile(v_shader_file, f_shader_file, g_shader_file);
+    return shaders_[name];
 }
 
 Shader ResourceManager::GetShader(std::string name)
 {
-    return shaders[name];
+    return shaders_[name];
 }
 
 Texture2D ResourceManager::LoadTexture(const char* file, bool alpha, std::string name)
 {
-    textures[name] = LoadTextureFromFile(file, alpha);
-    return textures[name];
+    textures_[name] = LoadTextureFromFile(file, alpha);
+    return textures_[name];
 }
 
 Texture2D ResourceManager::GetTexture(std::string name)
 {
-    return textures[name];
+    return textures_[name];
 }
 
 void ResourceManager::Clear()
 {
     // (properly) delete all shaders	
-    for (auto iter : shaders)
-        glDeleteProgram(iter.second.id);
+    for (auto iter : shaders_)
+        glDeleteProgram(iter.second.id_);
     // (properly) delete all textures
-    for (auto iter : textures)
-        glDeleteTextures(1, &iter.second.id);
+    for (auto iter : textures_)
+        glDeleteTextures(1, &iter.second.id_);
 }
 
 Shader ResourceManager::LoadShaderFromFile(const char* v_shader_file, const char* f_shader_file, const char* g_shader_file)
@@ -93,8 +93,8 @@ Texture2D ResourceManager::LoadTextureFromFile(const char* file, bool alpha)
     Texture2D texture;
     if (alpha)
     {
-        texture.internal_format = GL_RGBA;
-        texture.image_format = GL_RGBA;
+        texture.internal_format_ = GL_RGBA;
+        texture.image_format_ = GL_RGBA;
     }
     // load image
     int width, height, nr_channels;
