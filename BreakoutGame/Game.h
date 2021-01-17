@@ -1,5 +1,8 @@
 #pragma once
 
+#include "ResourceManager.h"
+#include "SpriteRenderer.h"
+
 enum GameState
 {
 	GAME_ACTIVE,
