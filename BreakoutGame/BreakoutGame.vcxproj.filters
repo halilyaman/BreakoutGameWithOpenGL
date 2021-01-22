@@ -33,6 +33,12 @@
     <ClCompile Include="SpriteRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameLevel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -50,13 +56,32 @@
     <ClInclude Include="SpriteRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameLevel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\sprite.frag" />
     <None Include="shaders\sprite.vert" />
+    <None Include="levels\1.lvl" />
+    <None Include="levels\2.lvl" />
+    <None Include="levels\3.lvl" />
+    <None Include="levels\4.lvl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\awesomeface.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\block.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\block_solid.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\background.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

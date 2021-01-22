@@ -2,6 +2,8 @@
 
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
+#include "GameLevel.h"
+#include <vector>
 
 enum GameState
 {
@@ -16,6 +18,8 @@ public:
 	GameState state_;
 	bool keys_[1024];
 	unsigned int width_, height_;
+	std::vector<GameLevel> levels_;
+	unsigned int level_;
 
 	// constructor / destructor
 	Game(unsigned int width, unsigned int height);
