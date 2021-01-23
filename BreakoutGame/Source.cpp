@@ -4,27 +4,6 @@
 #include "Game.h"
 #include "ResourceManager.h"
 
-#define GLFW_GAMEPAD_BUTTON_A   0
-#define GLFW_GAMEPAD_BUTTON_B   1
-#define GLFW_GAMEPAD_BUTTON_X   2
-#define GLFW_GAMEPAD_BUTTON_Y   3
-#define GLFW_GAMEPAD_BUTTON_LEFT_BUMPER   4
-#define GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER   5
-#define GLFW_GAMEPAD_BUTTON_BACK   6
-#define GLFW_GAMEPAD_BUTTON_START   7
-#define GLFW_GAMEPAD_BUTTON_GUIDE   8
-#define GLFW_GAMEPAD_BUTTON_LEFT_THUMB   9
-#define GLFW_GAMEPAD_BUTTON_RIGHT_THUMB   10
-#define GLFW_GAMEPAD_BUTTON_DPAD_UP   11
-#define GLFW_GAMEPAD_BUTTON_DPAD_RIGHT   12
-#define GLFW_GAMEPAD_BUTTON_DPAD_DOWN   13
-#define GLFW_GAMEPAD_BUTTON_DPAD_LEFT   14
-#define GLFW_GAMEPAD_BUTTON_LAST   GLFW_GAMEPAD_BUTTON_DPAD_LEFT
-#define GLFW_GAMEPAD_BUTTON_CROSS   GLFW_GAMEPAD_BUTTON_A
-#define GLFW_GAMEPAD_BUTTON_CIRCLE   GLFW_GAMEPAD_BUTTON_B
-#define GLFW_GAMEPAD_BUTTON_SQUARE   GLFW_GAMEPAD_BUTTON_X
-#define GLFW_GAMEPAD_BUTTON_TRIANGLE   GLFW_GAMEPAD_BUTTON_Y
-
 
 // GLFW function declarations 
 void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
@@ -116,7 +95,6 @@ int main(void)
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-    std::cout << key << std::endl;
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(window, true);

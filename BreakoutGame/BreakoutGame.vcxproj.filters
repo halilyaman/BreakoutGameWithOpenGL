@@ -39,6 +39,9 @@
     <ClCompile Include="GameLevel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BallObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -62,6 +65,9 @@
     <ClInclude Include="GameLevel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BallObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\sprite.frag" />
@@ -82,6 +88,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="textures\background.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\paddle.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
