@@ -67,6 +67,7 @@ void Game::Init()
 void Game::Update(float dt) 
 {
 	ball->Move(dt, this->width_);
+	this->DoCollisionCheck();
 }
 
 void Game::ProcessInput(float dt)
@@ -120,5 +121,39 @@ void Game::Render()
 		player->Draw(*renderer);
 		// draw ball
 		ball->Draw(*renderer);
+	}
+}
+
+bool Game::CheckColision(GameObject& obj_1, GameObject& obj_2)
+{
+	// check collision on x-axis
+	bool collision_x = obj_1.position_.x + obj_1.size_.x >= obj_2.position_.x
+		&& obj_2.position_.x + obj_2.size_.x >= obj_1.position_.x;
+	// check collision on y-axis
+	bool collision_y = obj_1.position_.y + obj_1.size_.y >= obj_2.position_.y
+		&& obj_2.position_.y + obj_2.size_.y >= obj_1.position_.y;
+	return collision_x && collision_y;
+}
+
+void Game::DoCollisionCheck()
+{
+	for (GameObject& brick : this->levels_[this->level_].bricks_)
+	{
+		if (!brick.is_destroyed_)
+		{
+			if (this->CheckColision(*ball, brick))
+			{
+				if (!brick.is_solid_)
+				{
+					brick.is_destroyed_ = true;
+					ball->velocity_.y = -(ball->velocity_.y);
+				}
+			}
+		}
+	}
+
+	if (this->CheckColision(*player, *ball))
+	{
+		ball->velocity_.y = -(ball->velocity_.y);
 	}
 }

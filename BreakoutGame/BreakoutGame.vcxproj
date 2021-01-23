@@ -178,6 +178,7 @@
     <Image Include="textures\background.jpg" />
     <Image Include="textures\block.png" />
     <Image Include="textures\block_solid.png" />
+    <Image Include="textures\face2.jpeg" />
     <Image Include="textures\paddle.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

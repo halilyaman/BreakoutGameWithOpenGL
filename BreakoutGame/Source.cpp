@@ -61,9 +61,23 @@ int main(void)
     float delta_time = 0.0f;
     float last_frame = 0.0f;
 
+    int counter = 0;
+    int sec(0);
+    int last_sec(0);
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        sec = static_cast<int>(glfwGetTime());
+        counter++;
+        if (sec > last_sec)
+        {
+            std::cout << "FPS: " << counter << std::endl;
+            counter = 0;
+        }
+        last_sec = sec;
+        counter++;
+
         // calculate delta time
         float current_frame = glfwGetTime();
         delta_time = current_frame - last_frame;
