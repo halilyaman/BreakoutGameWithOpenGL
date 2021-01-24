@@ -61,27 +61,29 @@ int main(void)
     float delta_time = 0.0f;
     float last_frame = 0.0f;
 
-    int counter = 0;
-    int sec(0);
-    int last_sec(0);
+    int frame_count = 0;
+    float fps = 0;
+    int update_rate = 4.0;
+    float dt = 0;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
-        sec = static_cast<int>(glfwGetTime());
-        counter++;
-        if (sec > last_sec)
-        {
-            std::cout << "FPS: " << counter << std::endl;
-            counter = 0;
-        }
-        last_sec = sec;
-        counter++;
-
         // calculate delta time
         float current_frame = glfwGetTime();
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
+        
+        // calculate fps
+        frame_count++;
+        dt += delta_time;
+        if (dt > 1.0 / update_rate)
+        {
+            fps = frame_count / dt;
+            std::cout << "FPS: " << fps << std::endl;
+            frame_count = 0;
+            dt -= 1.0 / update_rate;
+        }
 
         // manage user input
         breakout.ProcessInput(delta_time);

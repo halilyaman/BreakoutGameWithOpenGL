@@ -3,6 +3,7 @@
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
 #include "GameLevel.h"
+#include "BallObject.h"
 #include <vector>
 
 enum GameState
@@ -29,7 +30,7 @@ public:
 	void ProcessInput(float dt);
 	void Update(float dt);
 	void Render();
-	bool CheckColision(GameObject& obj_1, GameObject& obj_2);
+	bool CheckColision(BallObject& obj_1, GameObject& obj_2);
 	void DoCollisionCheck();
 };
 

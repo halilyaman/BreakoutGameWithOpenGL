@@ -1,15 +1,14 @@
 #include "Game.h"
 #include <GLFW/glfw3.h>
-#include "BallObject.h"
 
 // game-related state data
-SpriteRenderer* renderer;
-const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
-const float PLAYER_VELOCITY(500.0f);
-GameObject* player;
-const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -350.0f);
-const float BALL_RADIUS(12.5f);
-BallObject* ball;
+static SpriteRenderer* renderer;
+static const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
+static const float PLAYER_VELOCITY(500.0f);
+static GameObject* player;
+static const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -350.0f);
+static const float BALL_RADIUS(12.5f);
+static BallObject* ball;
 
 Game::Game(unsigned int width, unsigned int height)
 	: width_(width), height_(height), state_(GAME_ACTIVE), keys_(), level_(0) { }
@@ -124,15 +123,24 @@ void Game::Render()
 	}
 }
 
-bool Game::CheckColision(GameObject& obj_1, GameObject& obj_2)
+bool Game::CheckColision(BallObject& obj_1, GameObject& obj_2)
 {
-	// check collision on x-axis
-	bool collision_x = obj_1.position_.x + obj_1.size_.x >= obj_2.position_.x
-		&& obj_2.position_.x + obj_2.size_.x >= obj_1.position_.x;
-	// check collision on y-axis
-	bool collision_y = obj_1.position_.y + obj_1.size_.y >= obj_2.position_.y
-		&& obj_2.position_.y + obj_2.size_.y >= obj_1.position_.y;
-	return collision_x && collision_y;
+	// get center of the ball
+	glm::vec2 center(obj_1.position_ + obj_1.radius_);
+	// calculate aabb center and half-extents
+	glm::vec2 aabb_half_extents(obj_2.size_.x / 2.0f, obj_2.size_.y / 2.0f);
+	glm::vec2 aabb_center(
+		obj_2.position_.x + aabb_half_extents.x,
+		obj_2.position_.y + aabb_half_extents.y
+	);
+	// get difference vector between both centers
+	glm::vec2 difference = center - aabb_center;
+	glm::vec2 clamped = glm::clamp(difference, -aabb_half_extents, aabb_half_extents);
+	// add clamped value to aabb_center and we get the value of box closest to circle
+	glm::vec2 closest = aabb_center + clamped;
+	// retrieve vector between center circle and closest point aabb and check if length <= radius
+	difference = closest - center;
+	return glm::length(difference) < obj_1.radius_;
 }
 
 void Game::DoCollisionCheck()
@@ -152,7 +160,7 @@ void Game::DoCollisionCheck()
 		}
 	}
 
-	if (this->CheckColision(*player, *ball))
+	if (this->CheckColision(*ball, *player))
 	{
 		ball->velocity_.y = -(ball->velocity_.y);
 	}
