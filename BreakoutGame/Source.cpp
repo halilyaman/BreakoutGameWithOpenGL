@@ -44,7 +44,8 @@ int main(void)
         std::cout << "Glew could not be initialized." << std::endl;
         return -1;
     }
-    std::cout << glGetString(GL_VERSION) << std::endl;
+    std::cout << "GL Version: " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
 
     glfwSetKeyCallback(window, KeyCallback);
     glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);

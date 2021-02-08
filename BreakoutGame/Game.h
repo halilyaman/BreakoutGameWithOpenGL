@@ -5,6 +5,7 @@
 #include "GameLevel.h"
 #include "BallObject.h"
 #include <vector>
+#include <tuple>
 
 enum GameState
 {
@@ -12,6 +13,16 @@ enum GameState
 	GAME_MENU,
 	GAME_WIN
 };
+
+enum Direction 
+{
+	UP,
+	RIGHT,
+	DOWN,
+	LEFT
+};
+
+typedef std::tuple<bool, Direction, glm::vec2> Collision;
 
 class Game
 {
@@ -30,7 +41,8 @@ public:
 	void ProcessInput(float dt);
 	void Update(float dt);
 	void Render();
-	bool CheckColision(BallObject& obj_1, GameObject& obj_2);
+	Collision CheckCollision(BallObject& obj_1, GameObject& obj_2);
 	void DoCollisionCheck();
+	Direction VectorDirection(glm::vec2 target);
 };
 
