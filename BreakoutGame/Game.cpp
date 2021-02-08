@@ -11,7 +11,7 @@ static const float BALL_RADIUS(12.5f);
 static BallObject* ball;
 
 Game::Game(unsigned int width, unsigned int height)
-	: width_(width), height_(height), state_(GAME_ACTIVE), keys_(), level_(0) { }
+	: width_(width), height_(height), state_(enums::GAME_ACTIVE), keys_(), level_(0) { }
 
 Game::~Game()
 {
@@ -65,6 +65,20 @@ void Game::Init()
 
 void Game::Update(float dt) 
 {
+	if (ball->position_.y > this->height_) 
+	{
+		this->ResetLevel();
+		this->ResetPlayer();
+	}
+	if (this->levels_[this->level_].IsCompleted())
+	{
+		if (this->level_ < 3)
+		{
+			this->level_++;
+			this->ResetLevel();
+			this->ResetPlayer();
+		}
+	}
 	ball->Move(dt, this->width_);
 	this->DoCollisionCheck();
 }
@@ -72,14 +86,14 @@ void Game::Update(float dt)
 void Game::ProcessInput(float dt)
 {
 	float velocity = dt * PLAYER_VELOCITY;
-	if (this->state_ == GAME_ACTIVE)
+	if (this->state_ == enums::GAME_ACTIVE)
 	{
 		if (this->keys_[GLFW_KEY_A])
 		{
 			if (player->position_.x >= 0.0f)
 			{
 				player->position_.x -= velocity;
-				if (ball->stuck_on_ball_)
+				if (ball->stuck_on_paddle_)
 				{
 					ball->position_.x -= velocity;
 				}
@@ -90,7 +104,7 @@ void Game::ProcessInput(float dt)
 			if (player->position_.x <= this->width_ - player->size_.x)
 			{
 				player->position_.x += velocity;
-				if (ball->stuck_on_ball_)
+				if (ball->stuck_on_paddle_)
 				{
 					ball->position_.x += velocity;
 				}
@@ -98,14 +112,14 @@ void Game::ProcessInput(float dt)
 		}
 		if (this->keys_[GLFW_KEY_SPACE])
 		{
-			ball->stuck_on_ball_ = false;
+			ball->stuck_on_paddle_ = false;
 		}
 	}
 }
 
 void Game::Render()
 {
-	if (this->state_ == GAME_ACTIVE)
+	if (this->state_ == enums::GAME_ACTIVE)
 	{
 		// draw background
 		renderer->DrawSprite(
@@ -147,7 +161,7 @@ Collision Game::CheckCollision(BallObject& obj_1, GameObject& obj_2)
 	}
 	else
 	{
-		return std::make_tuple(false, Direction::UP, glm::vec2(0.0f, 0.0f));
+		return std::make_tuple(false, enums::Direction::UP, glm::vec2(0.0f, 0.0f));
 	}
 }
 
@@ -167,14 +181,14 @@ void Game::DoCollisionCheck()
 					box.is_destroyed_ = true;
 				}
 				// collision resolution
-				Direction dir = std::get<1>(collision);
+				enums::Direction dir = std::get<1>(collision);
 				glm::vec2 diff_vector = std::get<2>(collision);
-				if (dir == LEFT || dir == RIGHT) // horizontal collision
+				if (dir == enums::LEFT || dir == enums::RIGHT) // horizontal collision
 				{
 					ball->velocity_.x = -ball->velocity_.x; // reverse horizontal velocity
 					// relocate
 					float penetration = ball->radius_ - std::abs(diff_vector.x);
-					if (dir == LEFT)
+					if (dir == enums::LEFT)
 					{
 						ball->position_.x += penetration; // move ball to rigth
 					}
@@ -187,7 +201,7 @@ void Game::DoCollisionCheck()
 				{
 					ball->velocity_.y = -ball->velocity_.y; // reverse vertical velocity
 					float penetration = ball->radius_ - std::abs(diff_vector.y);
-					if (dir == UP)
+					if (dir == enums::UP)
 					{
 						ball->position_.y -= penetration; // move ball back up
 					}
@@ -202,13 +216,22 @@ void Game::DoCollisionCheck()
 
 	// collision between ball and palette
 	Collision collision = CheckCollision(*ball, *player);
-	if (std::get<0>(collision))
+	if (std::get<0>(collision) && !ball->stuck_on_paddle_)
 	{
-		ball->velocity_.y = -ball->velocity_.y;
+		// check where it hit the ball, and change the velocity according to where it hit the ball
+		float paddle_center = player->position_.x + player->size_.x / 2;
+		float distance = (ball->position_.x + ball->radius_) - paddle_center;
+		float percentage = distance / (player->size_.x / 2);
+		// move accordingly
+		float strength = 2.0f;
+		glm::vec2 old_velocity = ball->velocity_;
+		ball->velocity_.x = INITIAL_BALL_VELOCITY.x * strength * percentage;
+		ball->velocity_.y = -1.0f * glm::abs(ball->velocity_.y);
+		ball->velocity_ = glm::normalize(ball->velocity_) * glm::length(old_velocity);
 	}
 }
 
-Direction Game::VectorDirection(glm::vec2 target)
+enums::Direction Game::VectorDirection(glm::vec2 target)
 {
 	glm::vec2 compass[] =
 	{
@@ -229,5 +252,22 @@ Direction Game::VectorDirection(glm::vec2 target)
 			best_match = i;
 		}
 	}
-	return (Direction)best_match;
+	return (enums::Direction) best_match;
+}
+
+void Game::ResetLevel()
+{
+	std::string level_path = "levels/" + std::to_string(this->level_+1) + ".lvl";
+	this->levels_[this->level_].Load(level_path.c_str(), this->width_, this->height_ / 2);
+}
+
+void Game::ResetPlayer()
+{
+	glm::vec2 player_pos(
+		this->width_ / 2.0f - PLAYER_SIZE.x / 2.0f,
+		this->height_ - PLAYER_SIZE.y
+	);
+	player->position_ = player_pos;
+	glm::vec2 ball_pos = player_pos + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -BALL_RADIUS * 2.0f);
+	ball->Reset(ball_pos, INITIAL_BALL_VELOCITY);
 }

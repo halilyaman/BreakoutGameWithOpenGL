@@ -1,6 +1,6 @@
 #include "BallObject.h"
 
-BallObject::BallObject() : GameObject(), radius_(12.5f), stuck_on_ball_(true) {}
+BallObject::BallObject() : GameObject(), radius_(12.5f), stuck_on_paddle_(true) {}
 
 BallObject::BallObject(
 	glm::vec2 pos,
@@ -11,11 +11,11 @@ BallObject::BallObject(
 		glm::vec2(radius * 2.0f, radius * 2.0f),
 		sprite,
 		glm::vec3(1.0f),
-		velocity), radius_(radius), stuck_on_ball_(true) {}
+		velocity), radius_(radius), stuck_on_paddle_(true) {}
 
 glm::vec2 BallObject::Move(float dt, unsigned int window_width)
 {
-	if (!this->stuck_on_ball_)
+	if (!this->stuck_on_paddle_)
 	{
 		// move the ball
 		this->position_ += this->velocity_ * dt;
@@ -44,5 +44,5 @@ void BallObject::Reset(glm::vec2 position, glm::vec2 velocity)
 {
 	this->position_ = position;
 	this->velocity_ = velocity;
-	this->stuck_on_ball_ = true;
+	this->stuck_on_paddle_ = true;
 }

@@ -7,27 +7,32 @@
 #include <vector>
 #include <tuple>
 
-enum GameState
+namespace enums
 {
-	GAME_ACTIVE,
-	GAME_MENU,
-	GAME_WIN
-};
+	enum GameState
+	{
+		GAME_ACTIVE,
+		GAME_MENU,
+		GAME_WIN
+	};
 
-enum Direction 
-{
-	UP,
-	RIGHT,
-	DOWN,
-	LEFT
-};
+	enum Direction
+	{
+		UP,
+		RIGHT,
+		DOWN,
+		LEFT
+	};
+}
 
-typedef std::tuple<bool, Direction, glm::vec2> Collision;
+
+
+typedef std::tuple<bool, enums::Direction, glm::vec2> Collision;
 
 class Game
 {
 public:
-	GameState state_;
+	enums::GameState state_;
 	bool keys_[1024];
 	unsigned int width_, height_;
 	std::vector<GameLevel> levels_;
@@ -43,6 +48,8 @@ public:
 	void Render();
 	Collision CheckCollision(BallObject& obj_1, GameObject& obj_2);
 	void DoCollisionCheck();
-	Direction VectorDirection(glm::vec2 target);
+	enums::Direction VectorDirection(glm::vec2 target);
+	void ResetLevel();
+	void ResetPlayer();
 };
 
