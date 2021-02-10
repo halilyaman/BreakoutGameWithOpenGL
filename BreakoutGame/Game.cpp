@@ -1,39 +1,60 @@
 #include "Game.h"
 #include <GLFW/glfw3.h>
+#include "ParticleGenerator.h"
 
 // game-related state data
-static SpriteRenderer* renderer;
+static SpriteRenderer*    renderer;
+static GameObject*        player;
+static BallObject*        ball;
+static ParticleGenerator* particle_generator;
+
 static const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
 static const float PLAYER_VELOCITY(500.0f);
-static GameObject* player;
 static const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -350.0f);
 static const float BALL_RADIUS(12.5f);
-static BallObject* ball;
+
+
 
 Game::Game(unsigned int width, unsigned int height)
-	: width_(width), height_(height), state_(enums::GAME_ACTIVE), keys_(), level_(0) { }
+	: width_(width), height_(height), state_(enums::GameState::GAME_ACTIVE), keys_(), level_(0) { }
 
 Game::~Game()
 {
 	delete renderer;
+	delete player;
+	delete ball;
+	delete particle_generator;
 }
 
 void Game::Init() 
 {
 	// load shaders
 	ResourceManager::LoadShader("shaders/sprite.vert", "shaders/sprite.frag", nullptr, "sprite");
+	ResourceManager::LoadShader("shaders/particle.vert", "shaders/particle.frag", nullptr, "particle");
+
 	// configure shaders
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->width_), static_cast<float>(this->height_), 0.0f, -1.0f, 1.0f);
 	ResourceManager::GetShader("sprite").Use().SetInteger("image", 0);
-	ResourceManager::GetShader("sprite").Use().SetMatrix4("projection", projection);
-	// set render-specific controls
-	renderer = new SpriteRenderer((Shader&)ResourceManager::GetShader("sprite"));
+	ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
+	ResourceManager::GetShader("particle").Use().SetInteger("sprite", 0);
+	ResourceManager::GetShader("particle").SetMatrix4("projection", projection);
+
 	// load textures
 	ResourceManager::LoadTexture("textures/awesomeface.png", true, "face");
 	ResourceManager::LoadTexture("textures/background.jpg", false, "background");
 	ResourceManager::LoadTexture("textures/block.png", false, "block");
 	ResourceManager::LoadTexture("textures/block_solid.png", false, "block_solid");
 	ResourceManager::LoadTexture("textures/paddle.png", true, "paddle");
+	ResourceManager::LoadTexture("textures/particle.png", true, "particle");
+
+	// set render-specific controls
+	renderer = new SpriteRenderer((Shader&)ResourceManager::GetShader("sprite"));
+	particle_generator = new ParticleGenerator(
+		ResourceManager::GetShader("particle"),
+		ResourceManager::GetTexture("particle"),
+		1000
+	);
+
 	// load levels
 	GameLevel level_1;
 	GameLevel level_2;
@@ -80,13 +101,15 @@ void Game::Update(float dt)
 		}
 	}
 	ball->Move(dt, this->width_);
+	// update particles
+	particle_generator->Update(dt, *ball, 2, glm::vec2(ball->radius_ / 2.0f));
 	this->DoCollisionCheck();
 }
 
 void Game::ProcessInput(float dt)
 {
 	float velocity = dt * PLAYER_VELOCITY;
-	if (this->state_ == enums::GAME_ACTIVE)
+	if (this->state_ == enums::GameState::GAME_ACTIVE)
 	{
 		if (this->keys_[GLFW_KEY_A])
 		{
@@ -119,7 +142,7 @@ void Game::ProcessInput(float dt)
 
 void Game::Render()
 {
-	if (this->state_ == enums::GAME_ACTIVE)
+	if (this->state_ == enums::GameState::GAME_ACTIVE)
 	{
 		// draw background
 		renderer->DrawSprite(
@@ -132,6 +155,8 @@ void Game::Render()
 		this->levels_[this->level_].Draw(*renderer);
 		// draw player
 		player->Draw(*renderer);
+		// draw particles
+		particle_generator->Draw();
 		// draw ball
 		ball->Draw(*renderer);
 	}
@@ -183,12 +208,12 @@ void Game::DoCollisionCheck()
 				// collision resolution
 				enums::Direction dir = std::get<1>(collision);
 				glm::vec2 diff_vector = std::get<2>(collision);
-				if (dir == enums::LEFT || dir == enums::RIGHT) // horizontal collision
+				if (dir == enums::Direction::LEFT || dir == enums::Direction::RIGHT) // horizontal collision
 				{
 					ball->velocity_.x = -ball->velocity_.x; // reverse horizontal velocity
 					// relocate
 					float penetration = ball->radius_ - std::abs(diff_vector.x);
-					if (dir == enums::LEFT)
+					if (dir == enums::Direction::LEFT)
 					{
 						ball->position_.x += penetration; // move ball to rigth
 					}
@@ -201,7 +226,7 @@ void Game::DoCollisionCheck()
 				{
 					ball->velocity_.y = -ball->velocity_.y; // reverse vertical velocity
 					float penetration = ball->radius_ - std::abs(diff_vector.y);
-					if (dir == enums::UP)
+					if (dir == enums::Direction::UP)
 					{
 						ball->position_.y -= penetration; // move ball back up
 					}

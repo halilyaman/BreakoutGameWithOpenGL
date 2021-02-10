@@ -9,14 +9,14 @@
 
 namespace enums
 {
-	enum GameState
+	enum class GameState
 	{
 		GAME_ACTIVE,
 		GAME_MENU,
 		GAME_WIN
 	};
 
-	enum Direction
+	enum class Direction
 	{
 		UP,
 		RIGHT,
